@@ -1,9 +1,0 @@
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/controller/LivroServlet.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/controller/LoginServlet.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/controller/LogoutServlet.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/dao/LivroDAO.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/dao/UsuarioDAO.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/model/Livro.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/model/Usuario.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/util/AuthFilter.java
-/Users/eloyse.fernanda/Documents/faculdade/Trabalho1-devweb-2026.1/biblioteca/src/main/java/util/ConexaoDB.java
