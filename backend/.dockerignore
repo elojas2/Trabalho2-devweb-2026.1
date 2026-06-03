@@ -1,0 +1,10 @@
+target/
+pom.xml.releaseBackup
+pom.xml.tag
+pom.xml.next
+release.properties
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml

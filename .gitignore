@@ -1,0 +1,27 @@
+# Build
+biblioteca/target/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+MANIFEST.MF
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+biblioteca/src/main/resources/db.properties
+
+/bin/

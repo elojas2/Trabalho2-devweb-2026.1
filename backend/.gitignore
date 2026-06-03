@@ -1,0 +1,13 @@
+
+.classpath
+.project
+.settings/
+.factorypath
+.target/
+src/main/resources/db.properties
+
+.classpath
+.project
+.settings/
+MANIFEST.MF
+desktop.ini
