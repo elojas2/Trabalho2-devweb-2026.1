@@ -1,13 +1,10 @@
 package controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import dao.EmprestimoDAO;
 import dao.LivroDAO;
 import model.Emprestimo;
 import model.Livro;
 import model.Usuario;
-import util.LocalDateAdapter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
