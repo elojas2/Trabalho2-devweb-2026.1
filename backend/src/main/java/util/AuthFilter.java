@@ -18,20 +18,20 @@ public class AuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
-        
+
         String uri = req.getRequestURI();
         String contextPath = req.getContextPath();
-        
+
         // Rotas que não precisam de login
         boolean isStaticResource = uri.contains("/assets/");
         boolean isLoginPage = uri.equals(contextPath + "/login");
         boolean isCadastroPage = uri.contains("/cadastro");
         boolean isIndex = uri.equals(contextPath + "/") || uri.equals(contextPath + "/index.jsp");
-        
+
         Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
         boolean loggedIn = (usuario != null);
 
@@ -42,18 +42,21 @@ public class AuthFilter implements Filter {
         }
 
         if (!loggedIn) {
-            resp.sendRedirect(contextPath + "/login");
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.setContentType("application/json");
+            resp.getWriter().write("{\"mensagem\": \"Sessão expirada ou usuário não autenticado.\", \"tipo\": \"danger\"}");
             return;
         }
 
         // Apenas ADMIN
-        boolean isAdminRoute = uri.contains("/livros/cadastrar") || 
-                               uri.contains("/livros/editar") || 
+        boolean isAdminRoute = uri.contains("/livros/cadastrar") ||
+                               uri.contains("/livros/editar") ||
                                uri.contains("/livros/excluir");
 
         if (isAdminRoute && !usuario.isAdmin()) {
-            session.setAttribute("erro", "Acesso negado: Você não tem permissão de administrador.");
-            resp.sendRedirect(contextPath + "/livros");
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.setContentType("application/json");
+            resp.getWriter().write("{\"mensagem\": \"Acesso negado: Você não tem permissão de administrador.\", \"tipo\": \"danger\"}");
             return;
         }
 

@@ -1,27 +1,39 @@
-# Build
-biblioteca/target/
-
-# IDE
+# --- Geral (OS & IDEs) ---
+.DS_Store
+Thumbs.db
+desktop.ini
 .idea/
+.vscode/
 *.iml
 *.iws
 *.ipr
-.vscode/
-
-# Eclipse
 .classpath
 .project
 .settings/
 .factorypath
-MANIFEST.MF
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
+# --- Logs ---
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-biblioteca/src/main/resources/db.properties
+# --- Backend (Java/Maven) ---
+backend/target/
+backend/bin/
+backend/src/main/resources/db.properties
+backend/src/main/webapp/META-INF/MANIFEST.MF
 
-/bin/
+# --- Frontend (Node/React/Vite) ---
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.eslintcache
