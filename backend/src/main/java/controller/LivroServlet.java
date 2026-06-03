@@ -1,4 +1,5 @@
 package controller;
+import com.google.gson.Gson;
 import dao.LivroDAO;
 import model.Livro;
 import model.Usuario;
@@ -9,71 +10,71 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet("/livros/*")
 public class LivroServlet extends HttpServlet {
 
 	private LivroDAO dao = new LivroDAO();
+	private Gson gson = new Gson();
 
-	// GET → listar livros, abrir formulário de cadastro, editar ou excluir
+	private void enviarJson(HttpServletResponse resp, Object dado, int status) throws IOException {
+		resp.setStatus(status);
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("UTF-8");
+		PrintWriter out = resp.getWriter();
+		out.print(this.gson.toJson(dado));
+		out.flush();
+	}
+
+	private void enviarJson(HttpServletResponse resp, Object dado) throws IOException {
+		enviarJson(resp, dado, HttpServletResponse.SC_OK);
+	}
+
+	private class Resposta {
+		String mensagem;
+		String tipo;
+		Resposta(String mensagem, String tipo) {
+			this.mensagem = mensagem;
+			this.tipo = tipo;
+		}
+	}
+
+	// GET → listar livros ou buscar por ID
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
 		String pathInfo = req.getPathInfo();
-		Usuario usuarioLogado = (Usuario) req.getSession().getAttribute("usuarioLogado");
 
-		// Proteção: Apenas ADMIN acessa formulários de cadastro e edição
-		if ("/cadastrar".equals(pathInfo) || "/editar".equals(pathInfo)) {
-			if (usuarioLogado == null || !usuarioLogado.isAdmin()) {
-				req.getSession().setAttribute("mensagem", "Acesso negado. Apenas administradores podem realizar esta ação.");
-				req.getSession().setAttribute("tipoMensagem", "danger");
-				resp.sendRedirect(req.getContextPath() + "/livros");
-				return;
-			}
-		}
-
-		if ("/cadastrar".equals(pathInfo)) {
-			req.getRequestDispatcher("/WEB-INF/views/livros/cadastrar.jsp").forward(req, resp);
-			return;
-		}
-
-		if ("/editar".equals(pathInfo)) {
+		// Se for /livros/{id}, buscar livro específico
+		if (pathInfo != null && pathInfo.length() > 1) {
 			try {
-				int id = Integer.parseInt(req.getParameter("id"));
+				int id = Integer.parseInt(pathInfo.substring(1));
 				Livro livro = dao.buscarPorId(id);
 				if (livro == null) {
-					resp.sendRedirect(req.getContextPath() + "/livros");
+					resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Livro não encontrado");
 					return;
 				}
-				req.setAttribute("livro", livro);
-				req.getRequestDispatcher("/WEB-INF/views/livros/editar.jsp").forward(req, resp);
+				enviarJson(resp, livro);
+				return;
 			} catch (NumberFormatException e) {
-				resp.sendRedirect(req.getContextPath() + "/livros");
+				// Se não for número, segue para busca comum
 			}
-			return;
-		}
-
-		// Se houver um pathInfo que não seja nulo, "/" ou as opções acima, é um 404
-		if (pathInfo != null && !"/".equals(pathInfo)) {
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
 		}
 
 		String termo = req.getParameter("q");
 		String termoNormalizado = termo == null ? null : termo.trim();
 		List<Livro> lista;
-		
+
 		if (termoNormalizado != null && !termoNormalizado.isEmpty()) {
 			lista = dao.buscar(termoNormalizado);
-			req.setAttribute("termoBusca", termoNormalizado);
 		} else {
 			lista = dao.listarTodos();
 		}
-		
-		req.setAttribute("livros", lista);
-		req.getRequestDispatcher("/WEB-INF/views/livros/listar.jsp").forward(req, resp);
+
+		enviarJson(resp, lista);
 	}
 
 	// POST → cadastrar ou atualizar livro
@@ -86,74 +87,63 @@ public class LivroServlet extends HttpServlet {
 
 		// Proteção: Apenas ADMIN pode salvar, atualizar ou excluir dados
 		if (usuarioLogado == null || !usuarioLogado.isAdmin()) {
-			req.getSession().setAttribute("mensagem", "Acesso negado. Apenas administradores podem realizar esta ação.");
-			req.getSession().setAttribute("tipoMensagem", "danger");
-			resp.sendRedirect(req.getContextPath() + "/livros");
+			enviarJson(resp, new Resposta("Acesso negado. Apenas administradores podem realizar esta ação.", "danger"), HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
-		// POST /livros/excluir — exclusão segura
+		// POST /livros/excluir
 		if ("/excluir".equals(pathInfo)) {
 			try {
 				int id = Integer.parseInt(req.getParameter("id"));
 				dao.remover(id);
-				req.getSession().setAttribute("mensagem", "Livro excluído com sucesso!");
-				req.getSession().setAttribute("tipoMensagem", "success");
+				enviarJson(resp, new Resposta("Livro excluído com sucesso!", "success"), HttpServletResponse.SC_OK);
 			} catch (NumberFormatException e) {
-				req.getSession().setAttribute("mensagem", "ID inválido para exclusão.");
-				req.getSession().setAttribute("tipoMensagem", "danger");
+				enviarJson(resp, new Resposta("ID inválido para exclusão.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
 			} catch (IllegalStateException e) {
-				req.getSession().setAttribute("mensagem", "Erro ao excluir: " + e.getMessage());
-				req.getSession().setAttribute("tipoMensagem", "danger");
+				enviarJson(resp, new Resposta("Erro ao excluir: " + e.getMessage(), "danger"), HttpServletResponse.SC_CONFLICT);
 			}
-			resp.sendRedirect(req.getContextPath() + "/livros");
 			return;
 		}
-// POST /livros/editar ou POST /livros — cadastrar/atualizar
-try {
-	String titulo = req.getParameter("titulo");
-	String autor = req.getParameter("autor");
-	String anoStr = req.getParameter("ano");
-	boolean disponivel = Boolean.parseBoolean(req.getParameter("disponivel"));
 
-	// Validação Básica
-	if (titulo == null || titulo.trim().isEmpty() || 
-		autor == null || autor.trim().isEmpty() || 
-		anoStr == null || anoStr.trim().isEmpty()) {
-		throw new IllegalArgumentException("Todos os campos (Título, Autor e Ano) são obrigatórios.");
-	}
+		// POST /livros/editar ou POST /livros — cadastrar/atualizar
+		try {
+			String titulo = req.getParameter("titulo");
+			String autor = req.getParameter("autor");
+			String anoStr = req.getParameter("ano");
+			boolean disponivel = Boolean.parseBoolean(req.getParameter("disponivel"));
 
-	int ano = Integer.parseInt(anoStr);
-	if (ano < 0 || ano > 2100) {
-		throw new IllegalArgumentException("Por favor, insira um ano válido.");
-	}
+			// Validação Básica
+			if (titulo == null || titulo.trim().isEmpty() ||
+				autor == null || autor.trim().isEmpty() ||
+				anoStr == null || anoStr.trim().isEmpty()) {
+				throw new IllegalArgumentException("Todos os campos (Título, Autor e Ano) são obrigatórios.");
+			}
 
-	Livro livro = new Livro();
-	livro.setTitulo(titulo.trim());
-	livro.setAutor(autor.trim());
-	livro.setAno(ano);
-	livro.setDisponivel(disponivel);
+			int ano = Integer.parseInt(anoStr);
+			if (ano < 0 || ano > 2100) {
+				throw new IllegalArgumentException("Por favor, insira um ano válido.");
+			}
 
-	if ("/editar".equals(pathInfo)) {
-		int id = Integer.parseInt(req.getParameter("id"));
-		livro.setId(id);
-		dao.atualizar(livro);
-		req.getSession().setAttribute("mensagem", "Livro atualizado com sucesso!");
-	} else {
-		dao.cadastrar(livro);
-		req.getSession().setAttribute("mensagem", "Livro cadastrado com sucesso!");
-	}
-	req.getSession().setAttribute("tipoMensagem", "success");
+			Livro livro = new Livro();
+			livro.setTitulo(titulo.trim());
+			livro.setAutor(autor.trim());
+			livro.setAno(ano);
+			livro.setDisponivel(disponivel);
 
-} catch (NumberFormatException e) {
-	req.getSession().setAttribute("mensagem", "O campo Ano deve ser um número válido.");
-	req.getSession().setAttribute("tipoMensagem", "danger");
-} catch (IllegalArgumentException | IllegalStateException e) {
-	req.getSession().setAttribute("mensagem", e.getMessage());
-	req.getSession().setAttribute("tipoMensagem", "danger");
-}
+			if ("/editar".equals(pathInfo)) {
+				int id = Integer.parseInt(req.getParameter("id"));
+				livro.setId(id);
+				dao.atualizar(livro);
+				enviarJson(resp, new Resposta("Livro atualizado com sucesso!", "success"), HttpServletResponse.SC_OK);
+			} else {
+				dao.cadastrar(livro);
+				enviarJson(resp, new Resposta("Livro cadastrado com sucesso!", "success"), HttpServletResponse.SC_CREATED);
+			}
 
-
-		resp.sendRedirect(req.getContextPath() + "/livros");
+		} catch (NumberFormatException e) {
+			enviarJson(resp, new Resposta("O campo Ano deve ser um número válido.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			enviarJson(resp, new Resposta(e.getMessage(), "danger"), HttpServletResponse.SC_BAD_REQUEST);
+		}
 	}
 }

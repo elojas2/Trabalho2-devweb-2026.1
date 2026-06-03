@@ -1,5 +1,6 @@
 package controller;
 
+import com.google.gson.Gson;
 import dao.UsuarioDAO;
 import model.Usuario;
 
@@ -10,14 +11,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private Gson gson = new Gson();
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+    private void enviarJson(HttpServletResponse resp, Object dado, int status) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        PrintWriter out = resp.getWriter();
+        out.print(this.gson.toJson(dado));
+        out.flush();
+    }
+
+    private class Resposta {
+        String mensagem;
+        String tipo;
+        Resposta(String mensagem, String tipo) {
+            this.mensagem = mensagem;
+            this.tipo = tipo;
+        }
     }
 
     @Override
@@ -26,8 +42,7 @@ public class LoginServlet extends HttpServlet {
         String senha = req.getParameter("senha");
 
         if (email == null || email.trim().isEmpty() || senha == null || senha.trim().isEmpty()) {
-            req.setAttribute("erro", "E-mail ou senha inválidos.");
-            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+            enviarJson(resp, new Resposta("E-mail e senha são obrigatórios.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -36,11 +51,12 @@ public class LoginServlet extends HttpServlet {
         if (usuario != null) {
             HttpSession session = req.getSession();
             req.changeSessionId();
+            // Removemos a senha por segurança antes de enviar o JSON
+            usuario.setSenha(null); 
             session.setAttribute("usuarioLogado", usuario);
-            resp.sendRedirect(req.getContextPath() + "/livros");
+            enviarJson(resp, usuario, HttpServletResponse.SC_OK);
         } else {
-            req.setAttribute("erro", "E-mail ou senha inválidos.");
-            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+            enviarJson(resp, new Resposta("E-mail ou senha inválidos.", "danger"), HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 }
