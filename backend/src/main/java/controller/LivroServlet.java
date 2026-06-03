@@ -1,45 +1,19 @@
 package controller;
-import com.google.gson.Gson;
 import dao.LivroDAO;
 import model.Livro;
 import model.Usuario;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet("/livros/*")
-public class LivroServlet extends HttpServlet {
+public class LivroServlet extends BaseServlet {
 
 	private LivroDAO dao = new LivroDAO();
-	private Gson gson = new Gson();
-
-	private void enviarJson(HttpServletResponse resp, Object dado, int status) throws IOException {
-		resp.setStatus(status);
-		resp.setContentType("application/json");
-		resp.setCharacterEncoding("UTF-8");
-		PrintWriter out = resp.getWriter();
-		out.print(this.gson.toJson(dado));
-		out.flush();
-	}
-
-	private void enviarJson(HttpServletResponse resp, Object dado) throws IOException {
-		enviarJson(resp, dado, HttpServletResponse.SC_OK);
-	}
-
-	private class Resposta {
-		String mensagem;
-		String tipo;
-		Resposta(String mensagem, String tipo) {
-			this.mensagem = mensagem;
-			this.tipo = tipo;
-		}
-	}
 
 	// GET → listar livros ou buscar por ID
 	@Override
