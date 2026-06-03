@@ -85,7 +85,9 @@ public class EmprestimoServlet extends BaseServlet {
             } else {
                 enviarJson(response, new Resposta("Ação inválida.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
             }
-        } catch (SQLException | NumberFormatException e) {
+        } catch (NumberFormatException e) {
+            enviarJson(response, new Resposta("Parâmetro numérico inválido: " + e.getMessage(), "danger"), HttpServletResponse.SC_BAD_REQUEST);
+        } catch (SQLException e) {
             enviarJson(response, new Resposta("Erro ao processar a operação: " + e.getMessage(), "danger"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
