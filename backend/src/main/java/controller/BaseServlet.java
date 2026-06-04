@@ -17,8 +17,7 @@ public abstract class BaseServlet extends HttpServlet {
 
     protected void enviarJson(HttpServletResponse resp, Object dado, int status) throws IOException {
         resp.setStatus(status);
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json; charset=UTF-8");
         PrintWriter out = resp.getWriter();
         out.print(this.gson.toJson(dado));
         out.flush();
