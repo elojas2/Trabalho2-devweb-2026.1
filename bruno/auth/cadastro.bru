@@ -1,0 +1,17 @@
+meta {
+  name: Cadastro de Usuário
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/cadastroUser
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  nome: João da Silva
+  email: joao@email.com
+  senha: senha123
+}

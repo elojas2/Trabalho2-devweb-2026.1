@@ -1,0 +1,15 @@
+meta {
+  name: Buscar Livros por Termo
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/livros?q=machado
+  body: none
+  auth: none
+}
+
+params:query {
+  q: machado
+}
