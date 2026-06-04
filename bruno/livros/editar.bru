@@ -1,0 +1,19 @@
+meta {
+  name: Editar Livro (Admin)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/livros/editar
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  id: 1
+  titulo: Dom Casmurro
+  autor: Machado de Assis
+  ano: 1899
+  disponivel: true
+}

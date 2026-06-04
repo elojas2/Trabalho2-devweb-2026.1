@@ -1,0 +1,16 @@
+meta {
+  name: Emprestar Livro
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/emprestimos
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  action: emprestar
+  idLivro: 1
+}

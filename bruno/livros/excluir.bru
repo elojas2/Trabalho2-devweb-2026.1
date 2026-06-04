@@ -1,0 +1,15 @@
+meta {
+  name: Excluir Livro (Admin)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/livros/excluir
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  id: 1
+}

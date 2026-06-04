@@ -1,0 +1,18 @@
+meta {
+  name: Cadastrar Livro (Admin)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/livros
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  titulo: O Nome da Rosa
+  autor: Umberto Eco
+  ano: 1980
+  disponivel: true
+}
