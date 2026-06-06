@@ -15,20 +15,41 @@ interface AuthContextType {
   setUsuario: (u: Usuario | null) => void;
 }
 
+const STORAGE_KEY = 'usuario';
+
+function salvarUsuario(u: Usuario | null) {
+  if (u) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+  else sessionStorage.removeItem(STORAGE_KEY);
+}
+
+function carregarUsuario(): Usuario | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Usuario) : null;
+  } catch {
+    return null;
+  }
+}
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [usuario, setUsuarioState] = useState<Usuario | null>(carregarUsuario);
+
+  const setUsuario = useCallback((u: Usuario | null) => {
+    salvarUsuario(u);
+    setUsuarioState(u);
+  }, []);
 
   const login = useCallback(async (email: string, senha: string) => {
     const data = await post<Usuario>('/login', { email, senha });
     setUsuario(data);
-  }, []);
+  }, [setUsuario]);
 
   const logout = useCallback(async () => {
     await get('/logout');
     setUsuario(null);
-  }, []);
+  }, [setUsuario]);
 
   return (
     <AuthContext.Provider value={{ usuario, login, logout, setUsuario }}>
