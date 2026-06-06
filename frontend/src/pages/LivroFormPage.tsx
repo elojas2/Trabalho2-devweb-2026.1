@@ -64,33 +64,37 @@ export default function LivroFormPage() {
   }
 
   return (
-    <main>
-      <h1>{isEditing ? 'Editar Livro' : 'Cadastrar Livro'}</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Título
-          <input value={titulo} onChange={(e) => setTitulo(e.target.value)} required />
-        </label>
-        <label>
-          Autor
-          <input value={autor} onChange={(e) => setAutor(e.target.value)} required />
-        </label>
-        <label>
-          Ano
-          <input type="number" value={ano} onChange={(e) => setAno(e.target.value)} required />
-        </label>
-        <label>
-          <input type="checkbox" checked={disponivel} onChange={(e) => setDisponivel(e.target.checked)} />
-          Disponível
-        </label>
-        {erro && <p role="alert">{erro}</p>}
-        <button type="submit" disabled={carregando}>
-          {carregando ? 'Salvando...' : 'Salvar'}
-        </button>
-      </form>
-      {isEditing && (
-        <button onClick={handleExcluir}>Excluir livro</button>
-      )}
+    <main className="page">
+      <div className="form-card">
+        <h1 className="form-card__title">{isEditing ? 'Editar Livro' : 'Cadastrar Livro'}</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="titulo">Título</label>
+            <input id="titulo" value={titulo} onChange={(e) => setTitulo(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="autor">Autor</label>
+            <input id="autor" value={autor} onChange={(e) => setAutor(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="ano">Ano</label>
+            <input id="ano" type="number" value={ano} onChange={(e) => setAno(e.target.value)} required />
+          </div>
+          <label className="form-checkbox">
+            <input type="checkbox" checked={disponivel} onChange={(e) => setDisponivel(e.target.checked)} />
+            Disponível para empréstimo
+          </label>
+          {erro && <p className="alert alert--error" role="alert">{erro}</p>}
+          <button type="submit" className="btn btn--primary btn--full" disabled={carregando}>
+            {carregando ? 'Salvando...' : 'Salvar'}
+          </button>
+        </form>
+        {isEditing && (
+          <button onClick={handleExcluir} className="btn btn--danger btn--full" style={{ marginTop: 12 }}>
+            Excluir livro
+          </button>
+        )}
+      </div>
     </main>
   )
 }
