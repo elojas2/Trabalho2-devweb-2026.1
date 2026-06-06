@@ -29,29 +29,31 @@ export default function CadastroPage() {
   }
 
   return (
-    <main>
-      <h1>Cadastro</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Nome
-          <input name="nome" type="text" required />
-        </label>
-        <label>
-          E-mail
-          <input name="email" type="email" required />
-        </label>
-        <label>
-          Senha
-          <input name="senha" type="password" required />
-        </label>
-        {erro && <p role="alert">{erro}</p>}
-        <button type="submit" disabled={carregando}>
-          {carregando ? 'Cadastrando...' : 'Cadastrar'}
-        </button>
-      </form>
-      <p>
-        Já tem conta? <Link to="/login">Faça login</Link>
-      </p>
+    <main className="page">
+      <div className="form-card">
+        <h1 className="form-card__title">Criar conta</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="nome">Nome</label>
+            <input id="nome" name="nome" type="text" required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">E-mail</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="senha">Senha</label>
+            <input id="senha" name="senha" type="password" required />
+          </div>
+          {erro && <p className="alert alert--error" role="alert">{erro}</p>}
+          <button type="submit" className="btn btn--primary btn--full" disabled={carregando}>
+            {carregando ? 'Cadastrando...' : 'Criar conta'}
+          </button>
+        </form>
+        <p className="form-footer">
+          Já tem conta? <Link to="/login">Faça login</Link>
+        </p>
+      </div>
     </main>
   )
 }
