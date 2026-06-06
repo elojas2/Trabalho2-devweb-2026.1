@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import CadastroPage from './pages/CadastroPage'
+import LivroFormPage from './pages/LivroFormPage'
 
 export default function App() {
   return (
@@ -14,8 +15,8 @@ export default function App() {
         <Route path="/cadastro" element={<CadastroPage />} />
         <Route path="/livros" element={<ProtectedRoute><div>Livros (em breve)</div></ProtectedRoute>} />
         <Route path="/meus-emprestimos" element={<ProtectedRoute><div>Empréstimos (em breve)</div></ProtectedRoute>} />
-        <Route path="/livros/novo" element={<ProtectedRoute adminOnly><div>Cadastrar livro (em breve)</div></ProtectedRoute>} />
-        <Route path="/livros/editar/:id" element={<ProtectedRoute adminOnly><div>Editar livro (em breve)</div></ProtectedRoute>} />
+        <Route path="/livros/novo" element={<ProtectedRoute adminOnly><LivroFormPage /></ProtectedRoute>} />
+        <Route path="/livros/editar/:id" element={<ProtectedRoute adminOnly><LivroFormPage /></ProtectedRoute>} />
       </Routes>
     </>
   )
