@@ -29,25 +29,27 @@ export default function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          E-mail
-          <input name="email" type="email" required />
-        </label>
-        <label>
-          Senha
-          <input name="senha" type="password" required />
-        </label>
-        {erro && <p role="alert">{erro}</p>}
-        <button type="submit" disabled={carregando}>
-          {carregando ? 'Entrando...' : 'Entrar'}
-        </button>
-      </form>
-      <p>
-        Não tem conta? <Link to="/cadastro">Cadastre-se</Link>
-      </p>
+    <main className="page">
+      <div className="form-card">
+        <h1 className="form-card__title">Entrar</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">E-mail</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="senha">Senha</label>
+            <input id="senha" name="senha" type="password" required />
+          </div>
+          {erro && <p className="alert alert--error" role="alert">{erro}</p>}
+          <button type="submit" className="btn btn--primary btn--full" disabled={carregando}>
+            {carregando ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
+        <p className="form-footer">
+          Não tem conta? <Link to="/cadastro">Cadastre-se</Link>
+        </p>
+      </div>
     </main>
   )
 }
