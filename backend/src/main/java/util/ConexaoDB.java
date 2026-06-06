@@ -14,16 +14,20 @@ public final class ConexaoDB {
 
     static {
         Properties props = new Properties();
-        try (InputStream input = ConexaoDB.class.getClassLoader().getResourceAsStream("db.properties")) {
-            if (input == null) {
-                throw new IllegalStateException("Arquivo db.properties nao encontrado no classpath.");
+        try {
+            InputStream input = ConexaoDB.class.getClassLoader().getResourceAsStream("db.properties");
+            if (input != null) {
+                props.load(input);
+                input.close();
             }
-            props.load(input);
 
-            // Tenta obter das variáveis de ambiente primeiro (Docker), senão usa o arquivo
             String url = System.getenv("DB_URL") != null ? System.getenv("DB_URL") : props.getProperty("db.url");
             String user = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : props.getProperty("db.user");
             String pass = System.getenv("DB_PASS") != null ? System.getenv("DB_PASS") : props.getProperty("db.password");
+
+            if (url == null || user == null || pass == null) {
+                throw new IllegalStateException("Configuracao de banco nao encontrada. Defina DB_URL, DB_USER e DB_PASS ou crie db.properties.");
+            }
 
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(url);
