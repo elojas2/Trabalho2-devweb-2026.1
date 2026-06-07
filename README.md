@@ -1,101 +1,153 @@
-# Sistema de Gerenciamento de Biblioteca
+# BiblioTech — Sistema de Gerenciamento de Biblioteca
 
-Este é um projeto acadêmico desenvolvido para a disciplina de Desenvolvimento Web.
-O sistema permite o gerenciamento (CRUD) de livros, autenticação de usuários e controle
-de acesso.
+Projeto acadêmico desenvolvido para a disciplina de Desenvolvimento Web (UFF).
+Sistema de gerenciamento de biblioteca com autenticação, CRUD de livros e
+controle de empréstimos.
 
-## Tecnologias Utilizadas
+## Tecnologias
 
-- **Linguagem:** Java 17
-- **Tecnologias Web:** Servlets 4.0 e JSP (JavaServer Pages)
-- **Banco de Dados:** MySQL 8.4
-- **Pool de Conexão:** HikariCP
-- **Gerenciador de Dependências:** Maven
-- **Containerização:** Docker & Docker Compose
+**Backend**
+- Java 17 + Servlets 4.0
+- MySQL 8.4
+- HikariCP (pool de conexões)
+- Maven + Apache Tomcat 9
 
----
-
-## Como Executar o Projeto
-
-Você pode rodar o projeto de duas maneiras: utilizando Docker (recomendado por ser mais rápido) ou configurando o ambiente localmente.
-
-### Opção 1: Via Docker (Recomendado)
-
-Esta opção configura automaticamente o Servidor (Tomcat) e o Banco de Dados (MySQL) com todos os dados populados.
-
-**Pré-requisitos:** Docker e Docker Compose instalados.
-
-1. No terminal, na raiz do projeto (pasta `/biblioteca`), execute:
-   ```bash
-   docker-compose up --build
-   ```
-2. Aguarde a finalização do build. A aplicação estará disponível em:
-   [http://localhost:8080](http://localhost:8080)
-3. O banco de dados MySQL estará acessível na porta `3307` do seu host.
+**Frontend**
+- React 19 + TypeScript
+- React Router DOM
+- Vite
 
 ---
 
-### Opção 2: Execução Local (Manual)
+## Como Executar
 
-**Pré-requisitos:** Java 17, Maven 3.8+, MySQL 8.0+ e Apache Tomcat 9.
+### Opção 1 — Docker (recomendado)
 
-#### 1. Banco de Dados (Passo a Passo)
+**Pré-requisitos:** Docker Compose instalados.
 
-Você precisará criar a estrutura do banco antes de rodar a aplicação. Existem duas formas principais:
+```bash
+docker compose up --build
+```
 
-**Via Terminal (Linha de Comando):**
-1. Na raiz do projeto, acesse a pasta `/sql`:
-   ```bash
-   cd sql
-   ```
-2. Execute o comando para importar tudo (o script já cria o banco automaticamente):
-   ```bash
-   mysql -u seu_usuario -p < schema.sql
-   mysql -u seu_usuario -p < seed.sql
-   ```
+Aguarde o build finalizar. Os serviços sobem automaticamente:
 
-**Via Interface Gráfica (MySQL Workbench / DBeaver):**
-1. Abra seu gerenciador e conecte-se ao servidor.
-2. Abra o arquivo `sql/schema.sql`, e execute-o por completo. O banco `biblioteca` aparecerá na sua lista de schemas.
-3. Abra o arquivo `sql/seed.sql` e execute-o para popular os dados.
-
-#### 2. Configuração da Aplicação
-- Vá em `src/main/resources/` e renomeie o arquivo `db.properties.example` para `db.properties`.
-- Edite o arquivo com suas credenciais locais do MySQL.
-
-#### 3. Build e Deploy
-- No terminal, na raiz do projeto (pasta `/biblioteca`), execute:
-  ```bash
-  mvn clean package
-  ```
-- O comando gerará um arquivo `biblioteca.war` dentro da pasta `target/`.
-- **Deploy no Tomcat:**
-  1. Localize a pasta onde o Apache Tomcat foi instalado.
-  2. Copie o arquivo `biblioteca.war` para a subpasta `/webapps`.
-  3. Para iniciar o servidor:
-     - **Windows:** Execute `bin/startup.bat`.
-     - **Linux/Mac:** Execute `bin/startup.sh`.
-- Após o servidor subir, acesse: [http://localhost:8080/biblioteca](http://localhost:8080/biblioteca)
+| Serviço  | URL                     |
+| :------- | :---------------------- |
+| Frontend | http://localhost:5173   |
+| Backend  | http://localhost:8080   |
+| MySQL    | localhost:3307          |
 
 ---
 
-## Credenciais para Teste
+### Opção 2 — Execução Local
 
-O banco de dados já vem populado com os seguintes usuários:
+**Pré-requisitos:** Java 17+, Maven 3.8+, MySQL 8+, Node.js 20+, Apache Tomcat 9.
 
-| Perfil | Email | Senha |
-| :--- | :--- | :--- |
-| **Administrador** | admin@biblioteca.com | 123456 |
-| **Usuário Comum** | elo@biblioteca.com | senha123 |
+#### 1. Banco de Dados
+
+Inicie o MySQL e execute os scripts:
+
+```bash
+mysql -u root -p < backend/sql/schema.sql
+mysql -u root -p < backend/sql/seed.sql
+```
+
+#### 2. Configuração do Backend
+
+Copie o arquivo de exemplo e edite com suas credenciais:
+
+```bash
+cp backend/src/main/resources/db.properties.example backend/src/main/resources/db.properties
+```
+
+```properties
+db.url=jdbc:mysql://localhost:3306/biblioteca?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
+db.user=seu_usuario
+db.password=sua_senha
+```
+
+#### 3. Instalar o Tomcat 9
+
+**macOS (Homebrew):**
+```bash
+brew install tomcat@9
+```
+
+**Windows/Linux:** Baixe em https://tomcat.apache.org/download-90.cgi e extraia
+em uma pasta de sua preferência.
+
+#### 4. Build e Deploy
+
+```bash
+cd backend
+mvn clean package -DskipTests
+```
+
+Copie o `.war` gerado para a pasta `webapps` do Tomcat:
+
+**macOS (Homebrew):**
+```bash
+cp target/biblioteca.war /opt/homebrew/Cellar/tomcat@9/9.0.118/libexec/webapps/ROOT.war
+/opt/homebrew/Cellar/tomcat@9/9.0.118/bin/catalina start
+```
+
+**Windows:**
+```bash
+copy target\biblioteca.war C:\caminho-do-tomcat\webapps\ROOT.war
+C:\caminho-do-tomcat\bin\startup.bat
+```
+
+**Linux:**
+```bash
+cp target/biblioteca.war /opt/tomcat/webapps/ROOT.war
+/opt/tomcat/bin/catalina.sh start
+```
+
+Acesse `http://localhost:8080`.
+
+#### 4. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Acesse `http://localhost:5173`.
 
 ---
 
-## Estrutura de Pastas
+## Credenciais de Teste
 
-- `/src/main/java`: Código fonte Java (Controllers, DAOs, Models, Utils).
-- `/src/main/webapp`: Arquivos JSP e recursos estáticos (CSS, JS).
-- `/sql`: Scripts de banco de dados e consultas de exemplo.
-- `Dockerfile` & `docker-compose.yml`: Configurações de ambiente isolado.
+| Perfil            | E-mail                  | Senha      |
+| :---------------- | :---------------------- | :--------- |
+| **Administrador** | admin@biblioteca.com    | 123456     |
+| **Usuário Comum** | elo@biblioteca.com      | senha123   |
+
+---
+
+## Estrutura do Projeto
+
+```
+/
+├── docker-compose.yml
+├── backend/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   ├── sql/               # Scripts de banco (schema + seed)
+│   └── src/main/java/
+│       ├── controller/    # Servlets (API REST)
+│       ├── dao/           # Acesso ao banco
+│       ├── model/         # Entidades
+│       └── util/          # Filtros, conexão DB
+└── frontend/
+    ├── Dockerfile
+    └── src/
+        ├── api.ts          # Wrapper de chamadas à API
+        ├── contexts/       # AuthContext (estado de autenticação)
+        ├── components/     # Navbar, ProtectedRoute
+        └── pages/          # Login, Cadastro, Livros, Empréstimos
+```
 
 ---
 
