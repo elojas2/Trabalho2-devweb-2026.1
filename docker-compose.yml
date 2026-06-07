@@ -9,16 +9,16 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - ./sql/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
-      - ./sql/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+      - ./backend/sql/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./backend/sql/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-p$MYSQL_ROOT_PASSWORD"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       timeout: 20s
       retries: 10
 
-  app:
-    build: .
+  backend:
+    build: ./backend
     container_name: biblioteca-app
     restart: always
     ports:
@@ -30,6 +30,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: biblioteca-frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
 
 volumes:
   db_data:
