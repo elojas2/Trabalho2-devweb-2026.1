@@ -1,4 +1,7 @@
-const BASE_URL = 'http://localhost:8080';
+import * as mockApi from './mockApi'
+
+const MOCK = import.meta.env.VITE_MOCK === 'true'
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -15,11 +18,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data as T;
 }
 
-export function get<T>(path: string) {
+export function get<T>(path: string): Promise<T> {
+  if (MOCK) return mockApi.get<T>(path)
   return request<T>(path);
 }
 
-export function post<T>(path: string, body: Record<string, string>) {
+export function post<T>(path: string, body: Record<string, string>): Promise<T> {
+  if (MOCK) return mockApi.post<T>(path, body)
   const params = new URLSearchParams(body);
   return request<T>(path, {
     method: 'POST',

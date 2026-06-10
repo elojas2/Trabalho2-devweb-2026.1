@@ -2,7 +2,7 @@ name: Deploy frontend to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, test]
     paths:
       - 'frontend/**'
       - '.github/workflows/deploy-pages.yml'
@@ -36,6 +36,8 @@ jobs:
       - name: Build
         working-directory: frontend
         run: npm run build
+        env:
+          VITE_MOCK: 'true'
 
       - uses: actions/upload-pages-artifact@v3
         with:
