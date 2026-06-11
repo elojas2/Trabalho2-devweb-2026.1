@@ -18,6 +18,12 @@ public abstract class BaseServlet extends HttpServlet {
     protected void enviarJson(HttpServletResponse resp, Object dado, int status) throws IOException {
         resp.setStatus(status);
         resp.setContentType("application/json; charset=UTF-8");
+
+        // Injetar cabeçalhos para EVITAR cache
+        resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        resp.setHeader("Pragma", "no-cache"); 
+        resp.setHeader("Expires", "0"); 
+
         PrintWriter out = resp.getWriter();
         out.print(this.gson.toJson(dado));
         out.flush();
