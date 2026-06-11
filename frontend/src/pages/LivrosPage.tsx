@@ -11,6 +11,20 @@ interface Livro {
   disponivel: boolean
 }
 
+// Gravação e leitura de cookies no browser
+function setCookie(name: string, value: string, days: number) {
+  const date = new Date()
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
+  document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Lax`
+}
+
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null
+  return null
+}
+
 export default function LivrosPage() {
   const { usuario } = useAuth()
 
@@ -18,7 +32,9 @@ export default function LivrosPage() {
   const [busca, setBusca] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
-  const [mostrarApenasDisponiveis, setMostrarApenasDisponiveis] = useState(false)
+  const [mostrarApenasDisponiveis, setMostrarApenasDisponiveis] = useState<boolean>(() => {
+    return getCookie('filtroDisponiveis') === 'true'
+  })
 
   async function carregarLivros(e?: React.FormEvent) {
     if (e) e.preventDefault()
@@ -48,6 +64,12 @@ export default function LivrosPage() {
   useEffect(() => {
     carregarLivros()
   }, [])
+
+  // Atualiza o estado da interface e persiste a escolha num cookie por 30 dias
+  function handleCheckboxChange(checked: boolean) {
+    setMostrarApenasDisponiveis(checked)
+    setCookie('filtroDisponiveis', String(checked), 30)
+  }
 
   async function handleEmprestar(idLivro: number) {
     try {
@@ -99,7 +121,7 @@ export default function LivrosPage() {
             <input
               type="checkbox"
               checked={mostrarApenasDisponiveis}
-              onChange={(e) => setMostrarApenasDisponiveis(e.target.checked)}
+              onChange={(e) => handleCheckboxChange(e.target.checked)}
             />
             Mostrar apenas livros disponíveis
           </label>
