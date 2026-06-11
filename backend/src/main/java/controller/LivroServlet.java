@@ -1,4 +1,5 @@
 package controller;
+import com.google.gson.JsonObject;
 import dao.LivroDAO;
 import model.Livro;
 import model.Usuario;
@@ -22,7 +23,6 @@ public class LivroServlet extends BaseServlet {
 
 		String pathInfo = req.getPathInfo();
 
-		// Se for /livros/{id}, buscar livro específico
 		if (pathInfo != null && pathInfo.length() > 1) {
 			try {
 				int id = Integer.parseInt(pathInfo.substring(1));
@@ -34,7 +34,7 @@ public class LivroServlet extends BaseServlet {
 				enviarJson(resp, livro);
 				return;
 			} catch (NumberFormatException e) {
-				// Se não for número, segue para busca comum
+				// não é um ID numérico, segue para busca
 			}
 		}
 
@@ -51,73 +51,123 @@ public class LivroServlet extends BaseServlet {
 		enviarJson(resp, lista);
 	}
 
-	// POST → cadastrar ou atualizar livro
+	// POST → cadastrar novo livro (body: JSON)
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
-		String pathInfo = req.getPathInfo();
 		Usuario usuarioLogado = (Usuario) req.getSession().getAttribute("usuarioLogado");
-
-		// Proteção: Apenas ADMIN pode salvar, atualizar ou excluir dados
 		if (usuarioLogado == null || !usuarioLogado.isAdmin()) {
 			enviarJson(resp, new Resposta("Acesso negado. Apenas administradores podem realizar esta ação.", "danger"), HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
-		// POST /livros/excluir
-		if ("/excluir".equals(pathInfo)) {
-			try {
-				int id = Integer.parseInt(req.getParameter("id"));
-				dao.remover(id);
-				enviarJson(resp, new Resposta("Livro excluído com sucesso!", "success"), HttpServletResponse.SC_OK);
-			} catch (NumberFormatException e) {
-				enviarJson(resp, new Resposta("ID inválido para exclusão.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
-			} catch (IllegalStateException e) {
-				enviarJson(resp, new Resposta("Erro ao excluir: " + e.getMessage(), "danger"), HttpServletResponse.SC_CONFLICT);
-			}
-			return;
-		}
-
-		// POST /livros/editar ou POST /livros — cadastrar/atualizar
 		try {
-			String titulo = req.getParameter("titulo");
-			String autor = req.getParameter("autor");
-			String anoStr = req.getParameter("ano");
-			boolean disponivel = Boolean.parseBoolean(req.getParameter("disponivel"));
+			JsonObject body = lerJson(req);
+			String titulo = body.get("titulo").getAsString().trim();
+			String autor = body.get("autor").getAsString().trim();
+			int ano = body.get("ano").getAsInt();
+			boolean disponivel = body.get("disponivel").getAsBoolean();
 
-			// Validação Básica
-			if (titulo == null || titulo.trim().isEmpty() ||
-				autor == null || autor.trim().isEmpty() ||
-				anoStr == null || anoStr.trim().isEmpty()) {
+			if (titulo.isEmpty() || autor.isEmpty()) {
 				throw new IllegalArgumentException("Todos os campos (Título, Autor e Ano) são obrigatórios.");
 			}
-
-			int ano = Integer.parseInt(anoStr);
 			if (ano < 0 || ano > 2100) {
 				throw new IllegalArgumentException("Por favor, insira um ano válido.");
 			}
 
 			Livro livro = new Livro();
-			livro.setTitulo(titulo.trim());
-			livro.setAutor(autor.trim());
+			livro.setTitulo(titulo);
+			livro.setAutor(autor);
 			livro.setAno(ano);
 			livro.setDisponivel(disponivel);
+			dao.cadastrar(livro);
+			enviarJson(resp, new Resposta("Livro cadastrado com sucesso!", "success"), HttpServletResponse.SC_CREATED);
 
-			if ("/editar".equals(pathInfo)) {
-				int id = Integer.parseInt(req.getParameter("id"));
-				livro.setId(id);
-				dao.atualizar(livro);
-				enviarJson(resp, new Resposta("Livro atualizado com sucesso!", "success"), HttpServletResponse.SC_OK);
-			} else {
-				dao.cadastrar(livro);
-				enviarJson(resp, new Resposta("Livro cadastrado com sucesso!", "success"), HttpServletResponse.SC_CREATED);
+		} catch (IllegalArgumentException e) {
+			enviarJson(resp, new Resposta(e.getMessage(), "danger"), HttpServletResponse.SC_BAD_REQUEST);
+		} catch (Exception e) {
+			enviarJson(resp, new Resposta("Erro ao cadastrar livro: " + e.getMessage(), "danger"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// PUT /livros/{id} → atualizar livro (body: JSON)
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+
+		Usuario usuarioLogado = (Usuario) req.getSession().getAttribute("usuarioLogado");
+		if (usuarioLogado == null || !usuarioLogado.isAdmin()) {
+			enviarJson(resp, new Resposta("Acesso negado. Apenas administradores podem realizar esta ação.", "danger"), HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		String pathInfo = req.getPathInfo();
+		if (pathInfo == null || pathInfo.length() <= 1) {
+			enviarJson(resp, new Resposta("ID do livro não informado.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		try {
+			int id = Integer.parseInt(pathInfo.substring(1));
+			JsonObject body = lerJson(req);
+			String titulo = body.get("titulo").getAsString().trim();
+			String autor = body.get("autor").getAsString().trim();
+			int ano = body.get("ano").getAsInt();
+			boolean disponivel = body.get("disponivel").getAsBoolean();
+
+			if (titulo.isEmpty() || autor.isEmpty()) {
+				throw new IllegalArgumentException("Todos os campos (Título, Autor e Ano) são obrigatórios.");
+			}
+			if (ano < 0 || ano > 2100) {
+				throw new IllegalArgumentException("Por favor, insira um ano válido.");
 			}
 
+			Livro livro = new Livro();
+			livro.setId(id);
+			livro.setTitulo(titulo);
+			livro.setAutor(autor);
+			livro.setAno(ano);
+			livro.setDisponivel(disponivel);
+			dao.atualizar(livro);
+			enviarJson(resp, new Resposta("Livro atualizado com sucesso!", "success"), HttpServletResponse.SC_OK);
+
 		} catch (NumberFormatException e) {
-			enviarJson(resp, new Resposta("O campo Ano deve ser um número válido.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
-		} catch (IllegalArgumentException | IllegalStateException e) {
+			enviarJson(resp, new Resposta("ID inválido.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
+		} catch (IllegalArgumentException e) {
 			enviarJson(resp, new Resposta(e.getMessage(), "danger"), HttpServletResponse.SC_BAD_REQUEST);
+		} catch (Exception e) {
+			enviarJson(resp, new Resposta("Erro ao atualizar livro: " + e.getMessage(), "danger"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// DELETE /livros/{id} → excluir livro
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+
+		Usuario usuarioLogado = (Usuario) req.getSession().getAttribute("usuarioLogado");
+		if (usuarioLogado == null || !usuarioLogado.isAdmin()) {
+			enviarJson(resp, new Resposta("Acesso negado. Apenas administradores podem realizar esta ação.", "danger"), HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		String pathInfo = req.getPathInfo();
+		if (pathInfo == null || pathInfo.length() <= 1) {
+			enviarJson(resp, new Resposta("ID do livro não informado.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		try {
+			int id = Integer.parseInt(pathInfo.substring(1));
+			dao.remover(id);
+			enviarJson(resp, new Resposta("Livro excluído com sucesso!", "success"), HttpServletResponse.SC_OK);
+		} catch (NumberFormatException e) {
+			enviarJson(resp, new Resposta("ID inválido.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
+		} catch (IllegalStateException e) {
+			enviarJson(resp, new Resposta("Erro ao excluir: " + e.getMessage(), "danger"), HttpServletResponse.SC_CONFLICT);
+		} catch (Exception e) {
+			enviarJson(resp, new Resposta("Erro ao excluir livro: " + e.getMessage(), "danger"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

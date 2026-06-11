@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { get, post } from '../api'
+import { get, post, put, del } from '../api'
 
 interface Livro {
   id: number
@@ -37,12 +37,14 @@ export default function LivroFormPage() {
     setErro('')
     setCarregando(true)
 
-    const path = isEditing ? '/livros/editar' : '/livros'
-    const body: Record<string, string> = { titulo, autor, ano, disponivel: String(disponivel) }
-    if (isEditing) body.id = id!
+    const body = { titulo, autor, ano: Number(ano), disponivel }
 
     try {
-      await post(path, body)
+      if (isEditing) {
+        await put(`/livros/${id}`, body)
+      } else {
+        await post('/livros', body)
+      }
       navigate('/livros')
     } catch (err: unknown) {
       const e = err as { message?: string }
@@ -55,7 +57,7 @@ export default function LivroFormPage() {
   async function handleExcluir() {
     if (!confirm('Tem certeza que deseja excluir este livro?')) return
     try {
-      await post('/livros/excluir', { id: id! })
+      await del(`/livros/${id}`)
       navigate('/livros')
     } catch (err: unknown) {
       const e = err as { message?: string }
