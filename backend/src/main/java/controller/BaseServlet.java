@@ -40,12 +40,23 @@ public abstract class BaseServlet extends HttpServlet {
     protected JsonObject lerJson(HttpServletRequest req) throws IOException {
         req.setCharacterEncoding("UTF-8");
         StringBuilder sb = new StringBuilder();
-        BufferedReader reader = req.getReader();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
+        try (BufferedReader reader = req.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
         }
-        return JsonParser.parseString(sb.toString()).getAsJsonObject();
+        String body = sb.toString().trim();
+        if (body.isEmpty()) {
+            throw new IOException("O corpo da requisição está vazio.");
+        }
+        try {
+            return JsonParser.parseString(body).getAsJsonObject();
+        } catch (com.google.gson.JsonSyntaxException e) {
+            throw new IOException("Erro de sintaxe no JSON: " + e.getMessage());
+        } catch (IllegalStateException e) {
+            throw new IOException("O corpo da requisição deve ser um objeto JSON { ... }.");
+        }
     }
 
     // Classe utilitária para respostas padrão de mensagem
