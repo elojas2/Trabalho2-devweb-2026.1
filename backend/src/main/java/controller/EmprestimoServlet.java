@@ -51,7 +51,13 @@ public class EmprestimoServlet extends BaseServlet {
             return;
         }
 
-        com.google.gson.JsonObject body = lerJson(request);
+        com.google.gson.JsonObject body;
+        try {
+            body = lerJson(request);
+        } catch (Exception e) {
+            enviarJson(response, new Resposta("Erro no corpo da requisição: " + e.getMessage(), "danger"), HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         String action = body.has("action") ? body.get("action").getAsString() : null;
 
         try {

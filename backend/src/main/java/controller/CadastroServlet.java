@@ -18,7 +18,13 @@ public class CadastroServlet extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        com.google.gson.JsonObject body = lerJson(request);
+        com.google.gson.JsonObject body;
+        try {
+            body = lerJson(request);
+        } catch (Exception e) {
+            enviarJson(response, new Resposta("Erro no corpo da requisição: " + e.getMessage(), "danger"), HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         String nomeRecebido = body.has("nome") ? body.get("nome").getAsString() : null;
         String emailRecebido = body.has("email") ? body.get("email").getAsString() : null;
         String senhaRecebida = body.has("senha") ? body.get("senha").getAsString() : null;

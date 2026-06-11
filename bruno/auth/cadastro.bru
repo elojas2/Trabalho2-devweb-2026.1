@@ -6,12 +6,14 @@ meta {
 
 post {
   url: {{baseUrl}}/cadastroUser
-  body: formUrlEncoded
+  body: json
   auth: none
 }
 
-body:form-urlencoded {
-  nome: João da Silva
-  email: joao@email.com
-  senha: senha123
+body:json {
+  {
+    "nome": "João da Silva",
+    "email": "joao@email.com",
+    "senha": "senha123"
+  }
 }

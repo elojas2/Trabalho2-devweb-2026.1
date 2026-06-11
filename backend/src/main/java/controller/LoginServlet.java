@@ -16,7 +16,13 @@ public class LoginServlet extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        com.google.gson.JsonObject body = lerJson(req);
+        com.google.gson.JsonObject body;
+        try {
+            body = lerJson(req);
+        } catch (Exception e) {
+            enviarJson(resp, new Resposta("Erro no corpo da requisição: " + e.getMessage(), "danger"), HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         String email = body.has("email") ? body.get("email").getAsString() : null;
         String senha = body.has("senha") ? body.get("senha").getAsString() : null;
 

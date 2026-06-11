@@ -1,18 +1,20 @@
 meta {
-  name: Cadastrar Livro (Admin)
+  name: Cadastrar Livro
   type: http
-  seq: 4
+  seq: 3
 }
 
 post {
   url: {{baseUrl}}/livros
-  body: formUrlEncoded
+  body: json
   auth: none
 }
 
-body:form-urlencoded {
-  titulo: O Nome da Rosa
-  autor: Umberto Eco
-  ano: 1980
-  disponivel: true
+body:json {
+  {
+    "titulo": "O Senhor dos Anéis",
+    "autor": "J.R.R. Tolkien",
+    "ano": 1954,
+    "disponivel": true
+  }
 }

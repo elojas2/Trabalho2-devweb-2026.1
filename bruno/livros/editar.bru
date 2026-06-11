@@ -1,19 +1,20 @@
 meta {
-  name: Editar Livro (Admin)
+  name: Editar Livro
   type: http
-  seq: 5
+  seq: 4
 }
 
-post {
-  url: {{baseUrl}}/livros/editar
-  body: formUrlEncoded
+put {
+  url: {{baseUrl}}/livros/1
+  body: json
   auth: none
 }
 
-body:form-urlencoded {
-  id: 1
-  titulo: Dom Casmurro
-  autor: Machado de Assis
-  ano: 1899
-  disponivel: true
+body:json {
+  {
+    "titulo": "O Senhor dos Anéis - A Sociedade do Anel",
+    "autor": "J.R.R. Tolkien",
+    "ano": 1954,
+    "disponivel": true
+  }
 }
