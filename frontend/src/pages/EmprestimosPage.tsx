@@ -43,7 +43,7 @@ export default function EmprestimosPage() {
 
   async function handleDevolver(idEmprestimo: number) {
     try {
-      await post('/emprestimos', { action: 'devolver', idEmprestimo: String(idEmprestimo) })
+      await post('/emprestimos', { action: 'devolver', idEmprestimo })
       
       alert('Livro devolvido com sucesso!')
       carregarEmprestimos() 

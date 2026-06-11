@@ -18,11 +18,10 @@ public class CadastroServlet extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-
-        String nomeRecebido = request.getParameter("nome");
-        String emailRecebido = request.getParameter("email");
-        String senhaRecebida = request.getParameter("senha");
+        com.google.gson.JsonObject body = lerJson(request);
+        String nomeRecebido = body.has("nome") ? body.get("nome").getAsString() : null;
+        String emailRecebido = body.has("email") ? body.get("email").getAsString() : null;
+        String senhaRecebida = body.has("senha") ? body.get("senha").getAsString() : null;
 
         if (nomeRecebido == null || nomeRecebido.trim().isEmpty() ||
             emailRecebido == null || emailRecebido.trim().isEmpty() ||

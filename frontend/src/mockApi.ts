@@ -48,7 +48,7 @@ export function get<T>(path: string): Promise<T> {
   return Promise.reject({ message: 'Endpoint não encontrado no mock.' })
 }
 
-export function post<T>(path: string, body: Record<string, string>): Promise<T> {
+export function post<T>(path: string, body: Record<string, unknown>): Promise<T> {
   if (path === '/login') return delay(USUARIO_DEMO as T)
 
   if (path === '/cadastroUser') return delay(null as T)
@@ -82,26 +82,36 @@ export function post<T>(path: string, body: Record<string, string>): Promise<T> 
   if (path === '/livros') {
     livros.push({
       id: nextLivroId++,
-      titulo: body.titulo,
-      autor: body.autor,
+      titulo: String(body.titulo),
+      autor: String(body.autor),
       ano: Number(body.ano),
-      disponivel: body.disponivel === 'true',
+      disponivel: Boolean(body.disponivel),
     })
     return delay(null as T)
   }
 
-  if (path === '/livros/editar') {
-    const livro = livros.find(l => l.id === Number(body.id))
+  return Promise.reject({ message: 'Endpoint não encontrado no mock.' })
+}
+
+export function put<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  const livroMatch = path.match(/^\/livros\/(\d+)$/)
+  if (livroMatch) {
+    const livro = livros.find(l => l.id === Number(livroMatch[1]))
     if (!livro) return Promise.reject({ message: 'Livro não encontrado.' })
-    livro.titulo = body.titulo
-    livro.autor = body.autor
+    livro.titulo = String(body.titulo)
+    livro.autor = String(body.autor)
     livro.ano = Number(body.ano)
-    livro.disponivel = body.disponivel === 'true'
+    livro.disponivel = Boolean(body.disponivel)
     return delay(null as T)
   }
 
-  if (path === '/livros/excluir') {
-    livros = livros.filter(l => l.id !== Number(body.id))
+  return Promise.reject({ message: 'Endpoint não encontrado no mock.' })
+}
+
+export function del<T>(path: string): Promise<T> {
+  const livroMatch = path.match(/^\/livros\/(\d+)$/)
+  if (livroMatch) {
+    livros = livros.filter(l => l.id !== Number(livroMatch[1]))
     return delay(null as T)
   }
 

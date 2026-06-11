@@ -57,7 +57,7 @@ export default function LivrosPage() {
 
   async function handleEmprestar(idLivro: number) {
     try {
-      await post('/emprestimos', { action: 'emprestar', idLivro: String(idLivro) })
+      await post('/emprestimos', { action: 'emprestar', idLivro })
       alert('Livro emprestado com sucesso!')
       carregarLivros()
     } catch (err: unknown) {

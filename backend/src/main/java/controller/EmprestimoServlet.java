@@ -40,26 +40,27 @@ public class EmprestimoServlet extends BaseServlet {
         }
     }
 
-    // POST: Realiza o empréstimo ou a devolução
+    // POST: Realiza o empréstimo ou a devolução (body: JSON)
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
-        String action = request.getParameter("action");
 
         if (usuario == null) {
             enviarJson(response, new Resposta("Usuário não autenticado", "danger"), HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
+        com.google.gson.JsonObject body = lerJson(request);
+        String action = body.has("action") ? body.get("action").getAsString() : null;
+
         try {
             if ("emprestar".equals(action)) {
-                String idLivroStr = request.getParameter("idLivro");
-                if (idLivroStr == null) {
+                if (!body.has("idLivro")) {
                     enviarJson(response, new Resposta("ID do livro é obrigatório.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
-                int idLivro = Integer.parseInt(idLivroStr);
+                int idLivro = body.get("idLivro").getAsInt();
                 Livro livro = livroDAO.buscarPorId(idLivro);
 
                 if (livro != null && livro.isDisponivel()) {
@@ -74,12 +75,11 @@ public class EmprestimoServlet extends BaseServlet {
                     enviarJson(response, new Resposta("Desculpe, este livro já não está mais disponível.", "danger"), HttpServletResponse.SC_CONFLICT);
                 }
             } else if ("devolver".equals(action)) {
-                String idEmprestimoStr = request.getParameter("idEmprestimo");
-                if (idEmprestimoStr == null) {
+                if (!body.has("idEmprestimo")) {
                     enviarJson(response, new Resposta("ID do empréstimo é obrigatório.", "danger"), HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
-                int idEmprestimo = Integer.parseInt(idEmprestimoStr);
+                int idEmprestimo = body.get("idEmprestimo").getAsInt();
                 emprestimoDAO.devolverLivro(idEmprestimo);
                 enviarJson(response, new Resposta("Livro devolvido com sucesso!", "success"));
             } else {

@@ -16,8 +16,9 @@ public class LoginServlet extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String email = req.getParameter("email");
-        String senha = req.getParameter("senha");
+        com.google.gson.JsonObject body = lerJson(req);
+        String email = body.has("email") ? body.get("email").getAsString() : null;
+        String senha = body.has("senha") ? body.get("senha").getAsString() : null;
 
         if (email == null || email.trim().isEmpty() || senha == null || senha.trim().isEmpty()) {
             enviarJson(resp, new Resposta("E-mail e senha são obrigatórios.", "danger"), HttpServletResponse.SC_BAD_REQUEST);

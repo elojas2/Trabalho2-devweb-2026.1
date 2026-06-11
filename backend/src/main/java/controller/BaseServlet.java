@@ -2,10 +2,14 @@ package controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import util.LocalDateAdapter;
 
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
@@ -31,6 +35,17 @@ public abstract class BaseServlet extends HttpServlet {
 
     protected void enviarJson(HttpServletResponse resp, Object dado) throws IOException {
         enviarJson(resp, dado, HttpServletResponse.SC_OK);
+    }
+
+    protected JsonObject lerJson(HttpServletRequest req) throws IOException {
+        req.setCharacterEncoding("UTF-8");
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = req.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        return JsonParser.parseString(sb.toString()).getAsJsonObject();
     }
 
     // Classe utilitária para respostas padrão de mensagem
