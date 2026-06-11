@@ -4,6 +4,23 @@ Projeto acadêmico desenvolvido para a disciplina de Desenvolvimento Web (UFF).
 Sistema de gerenciamento de biblioteca com autenticação, CRUD de livros e
 controle de empréstimos.
 
+
+---
+
+## 🔗 Acesso Online (Live Demo)
+O Front-end desta aplicação encontra-se hospedado e disponível para acesso público através do GitHub Pages.
+**Acesse aqui:** [https://elojas2.github.io/Trabalho2-devweb-2026.1/](https://elojas2.github.io/Trabalho2-devweb-2026.1/)
+
+---
+
+## 🧪 Testes de API (Bruno) 
+Na raiz do repositório, encontra-se a pasta `/bruno` contendo a Collection exportada com as requisições GET, POST, PUT e DELETE. 
+Para testar:
+1. Faça o download da ferramenta [Bruno](https://www.usebruno.com/).
+2. Clique em **Open Collection** e selecione a pasta `bruno/` deste repositório.
+
+---
+
 ## Tecnologias
 
 **Backend**
@@ -130,6 +147,7 @@ Acesse `http://localhost:5173`.
 
 ```
 /
+├── bruno/
 ├── docker-compose.yml
 ├── backend/
 │   ├── Dockerfile
