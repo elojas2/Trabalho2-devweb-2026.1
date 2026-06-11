@@ -18,6 +18,7 @@ export default function LivrosPage() {
   const [busca, setBusca] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+  const [mostrarApenasDisponiveis, setMostrarApenasDisponiveis] = useState(false)
 
   async function carregarLivros(e?: React.FormEvent) {
     if (e) e.preventDefault()
@@ -59,6 +60,13 @@ export default function LivrosPage() {
     }
   }
 
+  const livrosFiltrados = livros.filter(livro => {
+    if (mostrarApenasDisponiveis) {
+      return livro.disponivel; 
+    }
+    return true; 
+  });
+
   return (
     <main className="page">
       <div className="container" style={{ padding: '2rem' }}>
@@ -86,6 +94,17 @@ export default function LivrosPage() {
           </div>
         </div>
 
+        <div className="filtro-container" style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={mostrarApenasDisponiveis}
+              onChange={(e) => setMostrarApenasDisponiveis(e.target.checked)}
+            />
+            Mostrar apenas livros disponíveis
+          </label>
+        </div>
+
         {erro && <p className="alert alert--error" style={{ color: 'red', fontWeight: 'bold' }}>{erro}</p>}
         {carregando && <p>Carregando catálogo...</p>}
 
@@ -103,12 +122,12 @@ export default function LivrosPage() {
                 </tr>
               </thead>
               <tbody>
-                {livros.length === 0 ? (
+                {livrosFiltrados.length === 0 ? (
                   <tr>
                     <td colSpan={6} style={{ padding: '1rem', textAlign: 'center' }}>Nenhum livro encontrado.</td>
                   </tr>
                 ) : (
-                  livros.map((livro) => (
+                  livrosFiltrados.map((livro) => (
                     <tr key={livro.id} style={{ borderBottom: '1px solid #eee' }}>
                       <td style={{ padding: '0.75rem' }}>{livro.id}</td>
                       <td style={{ padding: '0.75rem' }}>{livro.titulo}</td>
