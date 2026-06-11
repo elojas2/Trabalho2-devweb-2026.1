@@ -1,16 +1,18 @@
 meta {
   name: Devolver Livro
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
   url: {{baseUrl}}/emprestimos
-  body: formUrlEncoded
+  body: json
   auth: none
 }
 
-body:form-urlencoded {
-  action: devolver
-  idEmprestimo: 1
+body:json {
+  {
+    "action": "devolver",
+    "idEmprestimo": 1
+  }
 }

@@ -1,16 +1,18 @@
 meta {
-  name: Emprestar Livro
+  name: Realizar Empréstimo
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
   url: {{baseUrl}}/emprestimos
-  body: formUrlEncoded
+  body: json
   auth: none
 }
 
-body:form-urlencoded {
-  action: emprestar
-  idLivro: 1
+body:json {
+  {
+    "action": "emprestar",
+    "idLivro": 1
+  }
 }

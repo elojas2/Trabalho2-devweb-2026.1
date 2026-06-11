@@ -6,11 +6,13 @@ meta {
 
 post {
   url: {{baseUrl}}/login
-  body: formUrlEncoded
+  body: json
   auth: none
 }
 
-body:form-urlencoded {
-  email: admin@biblioteca.com
-  senha: 123456
+body:json {
+  {
+    "email": "admin@biblioteca.com",
+    "senha": "123456"
+  }
 }
