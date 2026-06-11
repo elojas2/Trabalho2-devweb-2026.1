@@ -11,13 +11,35 @@ interface Livro {
   disponivel: boolean
 }
 
+// Gravação e leitura de cookies no browser
+function setCookie(name: string, value: string, days: number) {
+  const date = new Date()
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
+  document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Lax`
+}
+
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null
+  return null
+}
+
 export default function LivrosPage() {
   const { usuario } = useAuth()
 
   const [livros, setLivros] = useState<Livro[]>([])
-  const [busca, setBusca] = useState('')
+
+  const [busca, setBusca] = useState(() => {
+  return getCookie('ultimaBusca') || ''
+  })
+
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+
+  const [mostrarApenasDisponiveis, setMostrarApenasDisponiveis] = useState<boolean>(() => {
+    return getCookie('filtroDisponiveis') === 'true'
+  })
 
   async function carregarLivros(e?: React.FormEvent) {
     if (e) e.preventDefault()
@@ -48,6 +70,12 @@ export default function LivrosPage() {
     carregarLivros()
   }, [])
 
+  // Atualiza o estado da interface e persiste a escolha num cookie por 30 dias
+  function handleCheckboxChange(checked: boolean) {
+    setMostrarApenasDisponiveis(checked)
+    setCookie('filtroDisponiveis', String(checked), 30)
+  }
+
   async function handleEmprestar(idLivro: number) {
     try {
       await post('/emprestimos', { action: 'emprestar', idLivro: String(idLivro) })
@@ -58,6 +86,13 @@ export default function LivrosPage() {
       alert(e.message ?? 'Erro ao tentar emprestar o livro.')
     }
   }
+
+  const livrosFiltrados = livros.filter(livro => {
+    if (mostrarApenasDisponiveis) {
+      return livro.disponivel; 
+    }
+    return true; 
+  });
 
   return (
     <main className="page">
@@ -72,7 +107,11 @@ export default function LivrosPage() {
                 type="text" 
                 placeholder="Título ou autor..." 
                 value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                onChange={(e) => {
+                  const novoValor = e.target.value;
+                  setBusca(novoValor);
+                  setCookie('ultimaBusca', novoValor, 7); // Guarda o valor por 7 dias
+                }}
                 style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
               />
               <button type="submit" className="btn btn--primary">Buscar</button>
@@ -84,6 +123,17 @@ export default function LivrosPage() {
               </Link>
             )}
           </div>
+        </div>
+
+        <div className="filtro-container" style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={mostrarApenasDisponiveis}
+              onChange={(e) => handleCheckboxChange(e.target.checked)}
+            />
+            Mostrar apenas livros disponíveis
+          </label>
         </div>
 
         {erro && <p className="alert alert--error" style={{ color: 'red', fontWeight: 'bold' }}>{erro}</p>}
@@ -103,12 +153,12 @@ export default function LivrosPage() {
                 </tr>
               </thead>
               <tbody>
-                {livros.length === 0 ? (
+                {livrosFiltrados.length === 0 ? (
                   <tr>
                     <td colSpan={6} style={{ padding: '1rem', textAlign: 'center' }}>Nenhum livro encontrado.</td>
                   </tr>
                 ) : (
-                  livros.map((livro) => (
+                  livrosFiltrados.map((livro) => (
                     <tr key={livro.id} style={{ borderBottom: '1px solid #eee' }}>
                       <td style={{ padding: '0.75rem' }}>{livro.id}</td>
                       <td style={{ padding: '0.75rem' }}>{livro.titulo}</td>

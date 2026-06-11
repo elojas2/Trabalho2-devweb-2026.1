@@ -36,9 +36,17 @@ public class AuthFilter implements Filter {
         boolean loggedIn = (usuario != null);
 
 
-        if (isStaticResource || isLoginPage || isCadastroPage || isIndex) {
+        if (isLoginPage || isCadastroPage || isIndex) {
             chain.doFilter(request, response);
             return;
+        }
+
+        if (isStaticResource) {
+        // Injetar cabeçalhos para FORÇAR o cache de estáticos
+            resp.setHeader("Cache-Control", "public, max-age=31536000");
+    
+            chain.doFilter(request, response);
+        return;
         }
 
         if (!loggedIn) {
