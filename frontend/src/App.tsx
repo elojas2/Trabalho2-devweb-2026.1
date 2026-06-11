@@ -12,13 +12,17 @@ export default function App() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Navigate to="/livros" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        
         <Route path="/login" element={<LoginPage />} />
         <Route path="/cadastro" element={<CadastroPage />} />
+        
         <Route path="/livros" element={<ProtectedRoute><LivrosPage /></ProtectedRoute>} />
         <Route path="/meus-emprestimos" element={<ProtectedRoute><EmprestimosPage /></ProtectedRoute>} />
         <Route path="/livros/novo" element={<ProtectedRoute adminOnly><LivroFormPage /></ProtectedRoute>} />
         <Route path="/livros/editar/:id" element={<ProtectedRoute adminOnly><LivroFormPage /></ProtectedRoute>} />
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
   )
