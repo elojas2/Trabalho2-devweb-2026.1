@@ -29,9 +29,14 @@ export default function LivrosPage() {
   const { usuario } = useAuth()
 
   const [livros, setLivros] = useState<Livro[]>([])
-  const [busca, setBusca] = useState('')
+
+  const [busca, setBusca] = useState(() => {
+  return getCookie('ultimaBusca') || ''
+  })
+
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+
   const [mostrarApenasDisponiveis, setMostrarApenasDisponiveis] = useState<boolean>(() => {
     return getCookie('filtroDisponiveis') === 'true'
   })
@@ -102,7 +107,11 @@ export default function LivrosPage() {
                 type="text" 
                 placeholder="Título ou autor..." 
                 value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                onChange={(e) => {
+                  const novoValor = e.target.value;
+                  setBusca(novoValor);
+                  setCookie('ultimaBusca', novoValor, 7); // Guarda o valor por 7 dias
+                }}
                 style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
               />
               <button type="submit" className="btn btn--primary">Buscar</button>
