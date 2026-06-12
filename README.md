@@ -4,20 +4,27 @@ Projeto acadêmico desenvolvido para a disciplina de Desenvolvimento Web (UFF).
 Sistema de gerenciamento de biblioteca com autenticação, CRUD de livros e
 controle de empréstimos.
 
-
 ---
 
-## 🔗 Acesso Online (Live Demo)
+## 🔗 Acesso Online
 O Front-end desta aplicação encontra-se hospedado e disponível para acesso público através do GitHub Pages.
 **Acesse aqui:** [https://elojas2.github.io/Trabalho2-devweb-2026.1/](https://elojas2.github.io/Trabalho2-devweb-2026.1/)
 
 ---
 
-## 🧪 Testes de API (Bruno) 
-Na raiz do repositório, encontra-se a pasta `/bruno` contendo a Collection exportada com as requisições GET, POST, PUT e DELETE. 
-Para testar:
-1. Faça o download da ferramenta [Bruno](https://www.usebruno.com/).
-2. Clique em **Open Collection** e selecione a pasta `bruno/` deste repositório.
+## GitHub Pages com Backend Local
+
+O front-end hospedado no GitHub Pages (HTTPS) se comunica com o backend local em `http://localhost:8080`. Navegadores modernos tratam `localhost` como uma origem segura
+por padrão, então as requisições funcionam normalmente sem configuração extra.
+
+Caso o seu browser bloqueie as requisições por política de *mixed content*,
+siga os passos abaixo:
+
+**Chrome / Edge:** clique no ícone de cadeado na barra de endereços → Configurações do site → Conteúdo inseguro → Permitir → recarregue a página.
+
+**Firefox:** clique no ícone de escudo na barra de endereços → Desativar proteção para este site → recarregue a página.
+
+> Lembrando que essa configuração ficará apenas para a página do BiblioTech e não afetará outros sites.
 
 ---
 
@@ -140,6 +147,16 @@ Acesse `http://localhost:5173`.
 | :---------------- | :---------------------- | :--------- |
 | **Administrador** | admin@biblioteca.com    | 123456     |
 | **Usuário Comum** | elo@biblioteca.com      | senha123   |
+
+---
+
+## Testes de API (Bruno) 
+Na raiz do repositório, encontra-se a pasta `/bruno` contendo a Collection
+exportada com as requisições GET, POST, PUT e DELETE. 
+Para testar:
+
+1. Faça o download da ferramenta [Bruno](https://www.usebruno.com/).
+2. Clique em **Open Collection** e selecione a pasta `bruno/` deste repositório.
 
 ---
 

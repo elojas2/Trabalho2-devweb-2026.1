@@ -18,8 +18,12 @@ public class CorsFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpServletRequest req = (HttpServletRequest) request;
 
-        // Permite requisições de qualquer origem (em produção, você especificaria o domínio do GitHub Pages)
-        resp.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        // Permite requisições tanto do localhost quanto do GitHub Pages
+        String origin = req.getHeader("Origin");
+        if (origin != null && (origin.contains("localhost") || origin.contains("github.io"))) {
+            resp.setHeader("Access-Control-Allow-Origin", origin);
+        }
+        
         resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
         resp.setHeader("Access-Control-Allow-Credentials", "true");
