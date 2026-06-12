@@ -6,6 +6,15 @@
 
     <display-name>Biblioteca MVC</display-name>
 
+    <session-config>
+        <cookie-config>
+            <http-only>true</http-only>
+            <secure>true</secure>
+            <comment>__SAME_SITE_NONE__</comment>
+        </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
+
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>

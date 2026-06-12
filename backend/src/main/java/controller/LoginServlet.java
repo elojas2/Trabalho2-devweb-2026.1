@@ -39,6 +39,12 @@ public class LoginServlet extends BaseServlet {
             // Removemos a senha por segurança antes de enviar o JSON
             usuario.setSenha(null); 
             session.setAttribute("usuarioLogado", usuario);
+
+            // Adiciona o cabeçalho manualmente para garantir SameSite=None; Secure
+            // Nota: O navegador aceita Secure no localhost mesmo sem HTTPS
+            String cookieHeader = String.format("JSESSIONID=%s; Path=/; HttpOnly; SameSite=None; Secure", session.getId());
+            resp.addHeader("Set-Cookie", cookieHeader);
+
             enviarJson(resp, usuario, HttpServletResponse.SC_OK);
         } else {
             enviarJson(resp, new Resposta("E-mail ou senha inválidos.", "danger"), HttpServletResponse.SC_UNAUTHORIZED);

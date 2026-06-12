@@ -2,8 +2,6 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
-const MOCK = import.meta.env.VITE_MOCK === 'true'
-
 export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -34,11 +32,6 @@ export default function LoginPage() {
     <main className="page">
       <div className="form-card">
         <h1 className="form-card__title">Entrar</h1>
-        {MOCK && (
-          <p className="alert" style={{ background: '#fef9c3', color: '#92400e', borderRadius: 6, padding: '0.5rem 0.75rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
-            Modo demo — use qualquer email e senha para entrar.
-          </p>
-        )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">E-mail</label>
